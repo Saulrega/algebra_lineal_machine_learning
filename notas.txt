@@ -1,0 +1,522 @@
+Aprendimos:
+   
+   - Que es una Matriz.
+   
+   - Que operaciones puedo realizar con ellas.
+   
+   - Que es una matriz identidad.
+   
+   - El calculo de la inversa de una matriz cuadrada.
+
+
+
+
+
+Ahora con esas bases vamos a poder calcular:
+
+   - ¿Qué son los auto valores?
+   
+   - ¿Qué son los auto vectores?
+   
+   - ¿Cómo puedo mediante esto descomponer una matriz?
+   
+   - Si descompongo una matriz, siempre es única esa descomposición.
+   
+   - ¿Qué es la descomposición en valores singulares?
+   
+   - ¿Cómo calcular una pseudoinversa?
+
+
+
+
+
+Por qué todo esto es tan importante:
+
+   Debido a que en machine Learning debemos tener cuidado en los tiempos computacionales, si no somos cuidadosos y reducimos la cantidad de dimensiones que estamos entregando vamos a necesitar grades volúmenes de datos que hagan que nuestros procesos demoren muchísimo mas tiempo.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Autovalores y Autovectores
+
+Autovectores:
+   
+   Son vectores cuya dirección no se modifica al aplicarle la trasformación de una matriz, el sentido y el tamaño sí puede variar. El valor que transforma el vector inicial en el vector final se llama autovalor.
+
+
+
+Notas:
+
+   -Sólo las matrices cuadradas tienen autovectores.
+   
+   -Hay tantos autovectores como la dimención de la matriz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Descomposición de matrices
+
+   - Descomponer una matriz: Quiere decir encontrar dos o más matrices que me ayuden a escribir la matriz original y que tengan ciertas propiedades.
+   
+   
+   - Una matriz A la podemos escribir como: sus autovectores producto punto una matriz diagonal, donde la matriz diagonal tiene todos los autovalores encontrados, producto punto la matriz inversa de sus autovectores.
+   
+   
+   - A_calc = autovectores.dot(np.diag(autovalores)).dot(np.linalg.inv(autovectores))
+   
+   
+   - Descomposición 2: Restricciones:Nuestra Matriz A sea real y simétrica (A = A-transpuesta). Decimos que A = la matriz de autovectores producto punto la matriz diagonal con los autovalores, producto punto la transpuesta de la matriz de autovectores. NOTA: Calcular la transpuesta de una matriz es mucho más económico en cómputo que calcular la inversa de una matriz. Y hay que recordar que el cómputo cuesta dinero.
+   
+   
+   - A_calc = autovectores.dot(np.diag(autovalores)).dot(autovectores.T)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+¿Cómo descompongo una matriz no cuadrada (SVD)?
+
+Descomposición de una matriz en valores singulares
+
+La descomposición por autovectores sólo es aplicable a matrices cuadradas. El presente método permite descomponer cualquier matriz en tres matrices:
+
+   U → vectores izquierdos singulares
+   D → matriz diagonal de valores singulares
+   V → vectores derechos singulares
+
+Estos valores se obtienen en python mediante el método:
+
+   U,D,V = np.linalg.svd(matriz)
+
+
+Nota:
+Podemos ve a una matriz rectangular como una subtransformación del espacio, es decir podemos condensar información de tres a dos dimensiones.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Efecto de la descomposición de una matriz en vectores singulares:
+
+   V → rota el espacio
+   D → Escala el espacio (agranda o encoje los vectores, también puede cambiar su sentido)
+   U → rota nuevamente los vectores
+
+
+Nota:
+La descomposición por valores singulares tiene efectos similares:
+
+   autovectores → rota el espacio
+   diag(autovalores) → escala el espacio
+   inv(autovectores) → rota el espacio
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Buscando la cantidad de valores singulares que nos sirvan
+
+   - la compresión de imágenes por SVD hace uso de que muy pocos de los valores singulares realmente representan información.
+   
+   - Los valores singulares se guardan de forma ordenada.
+
+
+https://www.youtube.com/watch?v=_OF3LKJkYC8&ab_channel=Derivando
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+¿Qué es una pseudo inversa de Moore Penrose y cómo calcularla?
+
+- La pseudo inversa de Moore Penrose es utilizada cuando en un sistema de ecuaciones lineales representado por Ax = B, x no tiene inversa.
+
+- La pseudo inversa de MP es única y existe si se verifican 4 condiciones.
+
+   condiciones_penrose.png
+
+
+
+- Para calcularla se siguen los siguientes pasos:
+   
+   - Calcular las matrices U, D, y V (matrices SVD) de A.
+   
+   - Construir D_pse: una matriz de ceros que tiene igual dimension de A, y que luego se transpone.
+   
+   - Reemplazar la submatriz D_pse[: D.shape[0], : D.shape[0]] por np.linalg.inv(np.diag(D))
+   
+   - Reconstruir pseudoinversa: A_pse = V.T.dot(D_pse).dot(U.T)
+
+
+Notas:
+   
+   - Para calcularla automaticamente por Python: np.linalg.pinv(A)
+   
+   - Lo que obtenemos con A_pse es una matriz muy cercana a la inversa. Cercano en el sentido de que minimiza la norma dos de estas distancias. O sea, de estos errores que estamos cometiendo.
+      
+   - A_pse no es conmutativa, es decir, A_pse·A ≠ A·A_pse
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Usando la pseudo inversa para resolver un sistema sobredeterminando
+
+   - Se quiere hallar la solucion del sistema de ecuaciones Ax = b, tal que x hace que ||Ax-b||_2 sea minima.
+   
+   - En principio el sistema de ecuaciones es sobredeterminado, lo que implica que las tres rectas no van a cruzarse en un mismo punto.
+   
+   - La solucion dada a través de la pseudo inversa es tal que obedece a los pesos de las ecuaciones. Cada ecuacion como tal ejerce un efecto de gravedad que mueve el punto hacia ella.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+¿Qué es PCA?
+
+En palabras sencillas el PCA es una técnica del análisis multivariado (estadística muy avanzada) que combina conceptos de álgebra lineal y estadistica y la finalidad de este método es REDUCIR, ojo!, no eliminar sino reducir la misma información de todas nuestras variables (dimensiones) a unas nuevas variables que les vamos a llamar componentes principales, y estas variables van a 1. explicar la misma información que las variables más fuertes o con más variabilidad 2. contener adicionalmente la mayor información posible de las otras dimensiones que no arrojen tanta información o no haya tanta correlación
+
+
+   
+   - Por cada variable que se agrega en el conjunto de datos vamos a necesitar exponencialmente más muestras para poder tener la misma relevancia estadística. En este sentido, se busca reducir las dimensionalidades haciendo que se capture la mayor cantidad de información.
+   
+   - Para buscar la dimensión que contenga la mayor cantidad de información se siguen los siguientes pasos:
+   
+   - Centrar la información.
+      xy_centrado = xy - np.mean(xy, axis = 0)
+
+   - Hallar los autovalores y autovectores de la información centralizada. 
+      
+      autovalores, autovectores = np.linalg.eig(xy_centrado.T.dot(xy_centrado))
+
+   - Encontrar el autovalor de mayor valor. Este autovalor está asociado al autovector que contiene más información y es sobre esta dirección reescribiran los datos.
+
+
+
+
+
+
+
+Para quienes no les quedo tan claro
+
+https://www.cienciadedatos.net/documentos/35_principal_component_analysis
+
+
+
+Este video puede aportar mas luces sobre PCA:
+https://www.youtube.com/watch?v=FgakZw6K1QQ
+
+
+
+   - PCA es una técnica muy útil para reducir la cantidad de dimensiones con las que estamos trabajando.
+   
+   
+   - Muchas veces nuestro conjunto de datos es muy grande y es necesario reducirlo al menos en un 20%, dejando el 80% de datos mas significativo.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://medium.com/@sebastiannorena/pca-principal-components-analysis-applied-to-images-of-faces-d2fc2c083371
+
+
+
+
+
+
+
+
+
+
+
+
+1.
+Al aplicar una matriz a un vector lo que obtenemos es:
+Un vector transformado linealmente.
+
+2.
+Un autovector de una matriz de 2x2 es aquel que cuando le aplico la matriz al autovector:
+Su dirección no cambia.
+3.
+Dada la matriz [[3 4] [3 2]], ¿Cuáles son sus autovalores y autovectores asociados?
+autovector_1 = [0.8, 0.6] autovalor_1 = 6 autovector_2 = [-raiz(2)/2, raiz(2)/2] autovalor_2 = -1
+4.
+Una matriz A cuadrada a la que puedo calcularle sus autovalores y autovectores asociados se puede descomponer como:
+autovectores.dot(np.diag(autovalores)).dot(autovectores.T)
+5.
+Una matriz A no cuadrada, ¿Cuándo se puede descomponer?
+
+Siempre, podemos usar la descomposición en valores singulares (SVD).
+
+6.
+Una forma simple de visualizar el efecto que la aplicación de una matriz A de 2x2 tiene es:
+
+Graficar el círculo unitario y el circulo unitario transformado.
+
+7.
+Al descomponer una matriz no cuadrada A por el método SVD obtenemos 3 matrices, U, D, V. Donde podemos interpretar a cada matriz como una transformación que debe ser aplicada en el siguiente orden:
+
+V -> Primera rotación D -> Escala U -> Segunda rotación
+8.
+Usar np.linalg.svd para descomponer una matriz por el método SVD nos devuelve 3 objetos U, D, V ¿Qué es D?
+
+Un vector que contiene los valores singulares en orden descendente.
+
+9.
+Cuando importamos una imagen a una matriz usando np.array(list(imagen.getdata(band=0)), float) obtenemos:
+
+Un vector con el valor de cada pixel de la imagen.
+
+10.
+Cuando aplicamos la descomposición SVD a una imagen podemos:
+
+Visualizar la imagen con menor calidad usando U[:, :1] , D[:1] y V[:1,:]
+11.
+Al descomponer por SVD a una matriz que contiene los pixeles de una imagen podemos reducir su tamaño y consecuentemente la definición al:
+
+Elegir la cantidad de valores singulares que conservaremos.
+
+12.
+¿Cuál es la pseudoinversa de Moore Penrose de la matriz?
+[[1 2]
+[3 4]
+[5 6]]
+
+[[-1.33333333 -0.33333333 0.66666667] [ 1.08333333 0.33333333 -0.41666667]]
+13.
+Dado el sistema de ecuaciones lineales:
+
+y = 1 * x + 4
+y = 2 * x + 5
+y = -3 * x + 6
+
+¿Cuál es la solución usando la pseudoinversa de Moore Penrose?
+
+[[0.28571429] [5. ]]
+14.
+¿Qué es PCA?
+Un método para reducir dimensiones que rotan los ejes.
+
+15.
+Cuando preparamos nuestros datos para aplicar PCA es importante que estén entre [0,1] o [-1,1] y estandarizarlos (por ejemplo dividir todos los elementos por el máximo valor que pueden tomar nuestros datos) porque:
+
+Proyecta los datos originales en las direcciones que maximizan la varianza.
+
+16.
+Usando el algoritmo PCA de la librería sklearn.decomposition, ¿cómo especifico que quiero conservar el 80% de la varianza contenida en los datos?
+n_components = 0.80
